@@ -3,6 +3,8 @@ from collections import deque
 import pyqtgraph as pg
 
 MAX_GRAPH_POINTS = 100
+FILTER_COEFF = 0.5
+FILTER_LENGTH = 50
 
 class GyroPlotWidget(QWidget):
     def __init__(self, ble_manager, parent=None):
@@ -11,17 +13,26 @@ class GyroPlotWidget(QWidget):
 
         self.ble_manager.new_line.connect(self.process_line)
 
+
         self.timestamps = deque(maxlen=MAX_GRAPH_POINTS)
-        self.gyro_vals = deque(maxlen=MAX_GRAPH_POINTS)
+        self.avg_gyro_vals = deque(maxlen=MAX_GRAPH_POINTS)
+        self.raw_gyro_vals = deque(maxlen=MAX_GRAPH_POINTS)
+        self.filter_values = deque([0.0]*FILTER_LENGTH, maxlen=FILTER_LENGTH)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.plot_widget = pg.PlotWidget(title="Real-time Gyro")
-        self.plot_widget.setMinimumHeight(300)
-        layout.addWidget(self.plot_widget)
+        # --- Filtered gyro plot ---
+        self.filtered_plot = pg.PlotWidget(title="Filtered Gyro")
+        self.filtered_plot.setMinimumHeight(300)
+        self.filtered_curve = self.filtered_plot.plot(pen=pg.mkPen('y', width=2))
+        layout.addWidget(self.filtered_plot)
 
-        self.curve = self.plot_widget.plot(pen=pg.mkPen('y', width=2))
+        # --- Raw gyro plot ---
+        self.raw_plot = pg.PlotWidget(title="Raw Gyro")
+        self.raw_plot.setMinimumHeight(300)
+        self.raw_curve = self.raw_plot.plot(pen=pg.mkPen('r', width=2))
+        layout.addWidget(self.raw_plot)
 
     def process_line(self, line):
         """
@@ -44,6 +55,21 @@ class GyroPlotWidget(QWidget):
                     return
 
         if ts is not None and gyro is not None:
+            
+            # Raw values
+            self.raw_gyro_vals.append(gyro)
             self.timestamps.append(ts)
-            self.gyro_vals.append(gyro)
-            self.curve.setData(list(self.timestamps), list(self.gyro_vals))
+            self.raw_curve.setData(list(self.timestamps), list(self.raw_gyro_vals))
+
+            # On shift les valeurs
+            self.filter_values.append(gyro)
+            avg = 0.0
+            coeff = FILTER_COEFF
+
+            # On calul le filtre (avg)
+            for val in reversed(self.filter_values):
+                avg += coeff * val
+                coeff /= 2.0
+
+            self.avg_gyro_vals.append(avg)
+            self.filtered_curve.setData(list(self.timestamps), list(self.avg_gyro_vals))
