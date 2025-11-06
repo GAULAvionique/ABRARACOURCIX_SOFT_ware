@@ -1,74 +1,73 @@
+import time
 import serial
 import serial.tools.list_ports
-import time
-import re
-import sys
+from PyQt6.QtCore import QObject, pyqtSignal, QThread
 
-BAUDRATE = 9600  # doit correspondre au HC-05
-
-def trouver_port_bluetooth():
-    ports = list(serial.tools.list_ports.comports())
-    candidats = []
-
-    for p in ports:
-        desc = p.description.upper()
-        if any(keyword in desc for keyword in ["HC", "BLUETOOTH", "STANDARD SERIAL", "SPP"]):
-            # extraire le numéro de port COM
-            match = re.search(r'COM(\d+)', p.device, re.IGNORECASE)
-            if match:
-                candidats.append((int(match.group(1)), p.device))
-
-    if not candidats:
-        print("❌ Aucun port Bluetooth détecté.")
-        print("Ports disponibles :", [p.device for p in ports])
-        return None
-
-    # tri par numéro de COM croissant → on prend le plus grand
-    candidats.sort(key=lambda x: x[0])
-    port_final = candidats[-1][1]
-    print(f"→ Ports Bluetooth détectés : {[c[1] for c in candidats]}")
-    print(f"✅ Sélection automatique du port le plus récent : {port_final}")
-    return port_final
+BAUDRATE = 115200
 
 
-def ouvrir_connexion():
-    port = trouver_port_bluetooth()
-    if not port:
-        sys.exit(1)
+class BLEWorker(QObject):
+    new_line = pyqtSignal(str)
 
-    try:
-        ser = serial.Serial(port, BAUDRATE, timeout=1)
-        print(f"✅ Connecté au port {port}")
-        return ser
-    except serial.SerialException as e:
-        print(f"Erreur : {e}")
-        sys.exit(1)
+    def __init__(self, serial_conn):
+        super().__init__()
+        self.serial_conn = serial_conn
+        self.running = True
 
+    def start(self):
+        while self.running:
+            if self.serial_conn and self.serial_conn.is_open:
+                line = self.serial_conn.readline().decode('utf-8').strip()
+                if line:
+                    self.new_line.emit(line)
+            else:
+                time.sleep(0.01)
 
-def envoyer_commande(ser, cmd):
-    if not ser.is_open:
-        print("Port série fermé.")
-        return
-    ser.write((cmd + "\r\n").encode())
-    print(f"Commande envoyée : {cmd}")
-    time.sleep(0.1)
+    def stop(self):
+        self.running = False
 
-    # Lecture éventuelle d'une réponse du STM32 (optionnel)
-    reponse = ser.readline().decode(errors='ignore').strip()
-    if reponse:
-        print("↩ Réponse STM32 :", reponse)
+class BLEManager(QObject):
+    new_line = pyqtSignal(str)
 
+    def __init__(self):
+        super().__init__()
+        self.serial_conn = None
+        self.worker = None
+        self.thread = None
 
-if __name__ == "__main__":
-    ser = ouvrir_connexion()
-    try:
-        while True:
-            cmd = input("Entrer commande (ex: A000, B000, C012, q pour quitter): ").strip()
-            if cmd.lower() == 'q':
-                break
-            envoyer_commande(ser, cmd)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        ser.close()
-        print("Connexion fermée.")
+    def connect(self, port=None):
+        if port:
+            self.serial_conn = serial.Serial(port, BAUDRATE, timeout=1)
+            self.start_worker()
+
+    def start_worker(self):
+        if self.serial_conn is None:
+            raise RuntimeError("Serial connection not established")
+
+        # Avoid starting multiple threads
+        if self.thread and self.thread.isRunning():
+            return
+
+        self.worker = BLEWorker(self.serial_conn)
+        self.thread = QThread()
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.start)
+        self.worker.new_line.connect(self.new_line.emit)
+        self.thread.start()
+
+    def send_command(self, cmd):
+        if self.serial_conn and self.serial_conn.is_open:
+            self.serial_conn.write((cmd + "\r\n").encode())
+
+    def stop(self):
+            if self.worker:
+                self.worker.stop()
+            if self.thread:
+                self.thread.quit()
+                self.thread.wait()
+            if self.serial_conn and self.serial_conn.is_open:
+                self.serial_conn.close()
+
+def detect_bt_ports():
+    ports = serial.tools.list_ports.comports()
+    return [(p.device, p.description) for p in ports]
