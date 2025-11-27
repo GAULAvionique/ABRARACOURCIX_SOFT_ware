@@ -1,13 +1,15 @@
 # CommandWidget.py
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QSlider, QSpinBox
+    QLabel, QLineEdit, QPushButton, QSlider, QSpinBox, QGroupBox
 )
 from PyQt6.QtCore import Qt
+import struct
 
-class CommandWidget(QWidget):
+
+class CommandWidget(QGroupBox):
     def __init__(self, ble_manager, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, title="Command")
         self.ble_manager = ble_manager
 
         layout = QVBoxLayout()
@@ -26,9 +28,9 @@ class CommandWidget(QWidget):
         # --- Quick command buttons ---
         quick_layout = QHBoxLayout()
         self.arm_btn = QPushButton("Arm Drone")
-        self.arm_btn.clicked.connect(lambda: self.ble_manager.send_command("A000"))
+        self.arm_btn.clicked.connect(lambda: self.send_custom_command("A000"))
         self.stop_btn = QPushButton("Stop Drone")
-        self.stop_btn.clicked.connect(lambda: self.ble_manager.send_command("C000"))
+        self.stop_btn.clicked.connect(lambda: self.send_custom_command("B000"))
         quick_layout.addWidget(self.arm_btn)
         quick_layout.addWidget(self.stop_btn)
         layout.addLayout(quick_layout)
@@ -58,12 +60,39 @@ class CommandWidget(QWidget):
         self.motor_slider.valueChanged.connect(self.motor_spin.setValue)
         self.motor_spin.valueChanged.connect(self.motor_slider.setValue)
 
-    def send_custom_command(self):
-        cmd = self.cmd_input.text().strip()
-        if cmd:
-            self.ble_manager.send_command(cmd)
+    #def send_custom_command(self):
+    #    cmd = self.cmd_input.text().strip()
+    #    if cmd:
+    #        self.ble_manager.send_command(cmd)
 
     def set_motor_speed(self):
         speed = self.motor_slider.value()
-        cmd = f"B{speed:03d}"
-        self.ble_manager.send_command(cmd)
+        cmd = f"C{speed:03d}"
+        self.send_custom_command(cmd)
+
+
+
+    def send_custom_command(self, cmd=None):
+        
+        if cmd is None:
+            cmd = self.cmd_input.text().strip()
+
+        if cmd:
+            if len(cmd) < 2:
+                return
+            command_type = cmd[0]
+            value_part = cmd[1:]
+            match command_type:
+                case 'A'|'B':  # Arm | Stop
+                    msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), 0)
+                    self.ble_manager.send_command(msg)
+
+                case 'C'|'Z'|'S': # Set motor speed | Choose filter | Window size
+                    msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), int(value_part))
+                    self.ble_manager.send_command(msg)
+
+                case 'P'|'I'|'D'|'E':  # Paramètres PID | Alpha
+                    msg = struct.pack('=cf', bytes(command_type, encoding="UTF-8"), float(value_part))
+                    print(msg)
+                    self.ble_manager.send_command(msg)
+

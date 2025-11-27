@@ -5,6 +5,7 @@ from BLE import BLEManager
 from BLEWidget import BLEQWidget
 from CommandWidget import CommandWidget
 from GyroPlotWidget import GyroPlotWidget
+from PIDWidget import PIDWidget
 
 
 class MainWindow(QMainWindow):
@@ -27,13 +28,18 @@ class MainWindow(QMainWindow):
 
         self.ble_widget = BLEQWidget(self.ble_manager)
         self.command_widget = CommandWidget(self.ble_manager)
+        self.PID_widget = PIDWidget(self.ble_manager)
+
 
         top_layout.addWidget(self.ble_widget)
         top_layout.addWidget(self.command_widget)
+        top_layout.addWidget(self.PID_widget)
+
 
         # --- Bottom Graph ---
         self.gyro_plot = GyroPlotWidget(self.ble_manager)
         main_layout.addWidget(self.gyro_plot)
+        
     def closeEvent(self, event):
         self.ble_manager.stop()
         event.accept()

@@ -1,10 +1,10 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QMessageBox, QGroupBox
 from BLE import BLEManager
 import serial
 
-class BLEQWidget(QWidget):
+class BLEQWidget(QGroupBox):
     def __init__(self, ble_manager: BLEManager, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, title="Bluetooth")
         self.ble_manager = ble_manager
 
         layout = QVBoxLayout()
