@@ -1,11 +1,12 @@
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout)
 
-from BLE import BLEManager
-from BLEWidget import BLEQWidget
-from CommandWidget import CommandWidget
-from GyroPlotWidget import GyroPlotWidget
-from PIDWidget import PIDWidget
+from Components.BLE import BLEManager
+from Components.BLEWidget import BLEQWidget
+from Components.CommandWidget import CommandWidget
+from Components.GyroPlotWidget import GyroPlotWidget
+from Components.PIDWidget import PIDWidget
+from Components.RecordWidget import RecordWidget
 
 
 class MainWindow(QMainWindow):
@@ -29,11 +30,13 @@ class MainWindow(QMainWindow):
         self.ble_widget = BLEQWidget(self.ble_manager)
         self.command_widget = CommandWidget(self.ble_manager)
         self.PID_widget = PIDWidget(self.ble_manager)
+        self.Record_widget = RecordWidget(self.ble_manager)
 
 
         top_layout.addWidget(self.ble_widget)
         top_layout.addWidget(self.command_widget)
         top_layout.addWidget(self.PID_widget)
+        top_layout.addWidget(self.Record_widget)
 
 
         # --- Bottom Graph ---

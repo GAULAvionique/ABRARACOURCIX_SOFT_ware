@@ -20,7 +20,7 @@ class CommandWidget(QGroupBox):
         self.cmd_input = QLineEdit()
         self.cmd_input.setPlaceholderText("Enter command (e.g. C012)")
         send_btn = QPushButton("Send")
-        send_btn.clicked.connect(self.send_custom_command)
+        send_btn.clicked.connect(lambda: self.send_custom_command(None))
         custom_layout.addWidget(self.cmd_input)
         custom_layout.addWidget(send_btn)
         layout.addLayout(custom_layout)
@@ -49,7 +49,7 @@ class CommandWidget(QGroupBox):
         self.motor_spin.setSuffix("%")
         self.motor_label = QLabel("Motor:")
         set_motor_btn = QPushButton("Set Motor Speed")
-        set_motor_btn.clicked.connect(self.set_motor_speed)
+        set_motor_btn.clicked.connect(lambda: self.send_custom_command(f"C{self.motor_spin.value()}"))
         motor_slider_layout.addWidget(self.motor_label)
         motor_slider_layout.addWidget(self.motor_spin)
         motor_slider_layout.addWidget(self.motor_slider)
@@ -57,13 +57,25 @@ class CommandWidget(QGroupBox):
         motor_layout.addWidget(set_motor_btn)
         layout.addLayout(motor_layout)
 
+        # --- Consigne Vitesse ---
+        speed_slider_layout = QHBoxLayout()
+        self.setpoint_spin = QSpinBox()
+        self.setpoint_spin.setRange(0, 360)
+        self.setpoint_spin.setValue(0)
+
+        speed_slider_layout.addWidget(self.setpoint_spin)
+        
+
+        self.set_speed_consign_btn = QPushButton("Set setpoint")
+        self.set_speed_consign_btn.clicked.connect(lambda: self.send_custom_command(f"V{self.setpoint_spin.value()}"))
+
+
+        speed_slider_layout.addWidget(self.set_speed_consign_btn)
+        layout.addLayout(speed_slider_layout)
+
         self.motor_slider.valueChanged.connect(self.motor_spin.setValue)
         self.motor_spin.valueChanged.connect(self.motor_slider.setValue)
 
-    #def send_custom_command(self):
-    #    cmd = self.cmd_input.text().strip()
-    #    if cmd:
-    #        self.ble_manager.send_command(cmd)
 
     def set_motor_speed(self):
         speed = self.motor_slider.value()
@@ -73,9 +85,10 @@ class CommandWidget(QGroupBox):
 
 
     def send_custom_command(self, cmd=None):
-        
+        print(cmd)
         if cmd is None:
             cmd = self.cmd_input.text().strip()
+            print(cmd)
 
         if cmd:
             if len(cmd) < 2:
@@ -84,14 +97,14 @@ class CommandWidget(QGroupBox):
             value_part = cmd[1:]
             match command_type:
                 case 'A'|'B':  # Arm | Stop
-                    msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), 0)
+                    msg = struct.pack('=c', bytes(command_type, encoding="UTF-8"))
                     self.ble_manager.send_command(msg)
 
                 case 'C'|'Z'|'S': # Set motor speed | Choose filter | Window size
                     msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), int(value_part))
                     self.ble_manager.send_command(msg)
 
-                case 'P'|'I'|'D'|'E':  # Paramètres PID | Alpha
+                case 'P'|'I'|'D'|'E'|'V':  # Paramètres PID | Alpha
                     msg = struct.pack('=cf', bytes(command_type, encoding="UTF-8"), float(value_part))
                     print(msg)
                     self.ble_manager.send_command(msg)

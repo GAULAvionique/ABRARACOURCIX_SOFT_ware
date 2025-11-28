@@ -80,7 +80,7 @@ class BLEManager(QObject):
         if self.serial_conn and self.serial_conn.is_open:
             print(len(cmd))
             print(cmd)
-            self.serial_conn.write(cmd)
+            self.serial_conn.write(cmd + b'\n')
 
     def send_PID(self, p, i, d):
         pass

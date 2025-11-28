@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QMessageBox, QGroupBox
-from BLE import BLEManager
+from Components.BLE import BLEManager
 import serial
 
 class BLEQWidget(QGroupBox):
