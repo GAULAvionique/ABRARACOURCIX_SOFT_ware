@@ -11,7 +11,7 @@ def main():
     # Create and show the main window
     window = MainWindow()
     #window.setPalette(DarkPalette())
-    window.resize(800, 400)
+    window.resize(1000, 400)
     window.show()
 
     # Run the Qt event loop

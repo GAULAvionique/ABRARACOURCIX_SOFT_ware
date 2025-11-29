@@ -47,6 +47,7 @@ class BLEWorker(QObject):
     def stop(self):
         self.running = False
 
+
 class BLEManager(QObject):
     new_line = pyqtSignal(str)
 
@@ -82,10 +83,6 @@ class BLEManager(QObject):
             print(cmd)
             self.serial_conn.write(cmd + b'\n')
 
-    def send_PID(self, p, i, d):
-        pass
-
-
     def stop(self):
             if self.worker:
                 self.worker.stop()
@@ -94,6 +91,10 @@ class BLEManager(QObject):
                 self.thread.wait()
             if self.serial_conn and self.serial_conn.is_open:
                 self.serial_conn.close()
+
+    def record_data(self, duration):
+        # logique pour set des flags et record...
+        pass
 
 def detect_bt_ports():
     ports = serial.tools.list_ports.comports()
