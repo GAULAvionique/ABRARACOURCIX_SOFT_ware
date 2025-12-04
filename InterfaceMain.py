@@ -9,6 +9,8 @@ from Components.GyroPlotWidget import GyroPlotWidget
 from Components.PIDWidget import PIDWidget
 from Components.RecordWidget import RecordWidget
 from Components.SetpointWidget import SetpointWidget
+from Components.SelectPlotWidget import SelectPlotWidget
+from Components.CurrentStateWidget import CurrentStateWidget
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +32,7 @@ class MainWindow(QMainWindow):
 
         central = QWidget()
         self.setCentralWidget(central)
-        main_layout = QVBoxLayout()
+        main_layout = QHBoxLayout()
         central.setLayout(main_layout)
 
         
@@ -38,22 +40,32 @@ class MainWindow(QMainWindow):
         top_layout = QHBoxLayout()
         main_layout.addLayout(top_layout)
 
+        col1_layout = QVBoxLayout()
+        col2_layout = QVBoxLayout()
+
         self.ble_widget = BLEQWidget(self.ble_manager)
         self.command_widget = CommandWidget(self.ble_manager)
         self.PID_widget = PIDWidget(self.ble_manager)
+        self.current_state_widget = CurrentStateWidget(self.ble_manager)
+
         self.Record_widget = RecordWidget(self.ble_manager)
         self.Setpoint_widget = SetpointWidget(self.ble_manager)
+        self.selectplot_widget = SelectPlotWidget(self.ble_manager)
 
 
-        top_layout.addWidget(self.ble_widget)
-        top_layout.addWidget(self.command_widget)
-        top_layout.addWidget(self.PID_widget)
-        top_layout.addWidget(self.Record_widget)
-        top_layout.addWidget(self.Setpoint_widget)
+        col1_layout.addWidget(self.ble_widget)
+        col1_layout.addWidget(self.command_widget)
+        col1_layout.addWidget(self.PID_widget)
+        col1_layout.addWidget(self.current_state_widget)
 
+        col2_layout.addWidget(self.Record_widget)
+        col2_layout.addWidget(self.Setpoint_widget)
+        col2_layout.addWidget(self.selectplot_widget)
 
+        top_layout.addLayout(col1_layout)
+        top_layout.addLayout(col2_layout)
         # --- Bottom Graph ---
-        self.gyro_plot = GyroPlotWidget(self.ble_manager)
+        self.gyro_plot = GyroPlotWidget(self.ble_manager, self.selectplot_widget)
         main_layout.addWidget(self.gyro_plot)
 
         

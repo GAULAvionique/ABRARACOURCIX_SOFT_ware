@@ -21,6 +21,11 @@ class BLEQWidget(QGroupBox):
         self.connect_btn.clicked.connect(self.connect_to_ble)
         layout.addWidget(self.connect_btn)
 
+        self.disconnect_btn = QPushButton("Disconnect")
+        self.disconnect_btn.clicked.connect(self.disconnect_to_ble)
+        layout.addWidget(self.disconnect_btn)
+        self.disconnect_btn.setEnabled(False)
+
         self.status_label = QLabel("Status: ❌ Not connected")
         layout.addWidget(self.status_label)
 
@@ -39,6 +44,17 @@ class BLEQWidget(QGroupBox):
         if not port:
             QMessageBox.warning(self, "Error", "No port selected")
             return
-        self.ble_manager.connect(port)
+        try:
+            self.ble_manager.connect(port)
+        except:
+            QMessageBox.warning(self, "Error", "Selected port is invalid")
+            return
         self.status_label.setText(f"Status: ✅ Connected on {port}")
         self.connect_btn.setEnabled(False)
+        self.disconnect_btn.setEnabled(True)
+    
+    def disconnect_to_ble(self):
+        self.ble_manager.stop()
+        self.connect_btn.setEnabled(True)
+        self.disconnect_btn.setEnabled(False)
+        self.status_label.setText("Status: ❌ Not connected")

@@ -24,7 +24,7 @@ class PIDWidget(QGroupBox):
         self.p_input.setText("0.0")
 
         self.p_label = QLabel("P")
-        self.p_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.p_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         p_layout.addWidget(self.p_label)
         p_layout.addWidget(self.p_input)
         layout.addLayout(p_layout)
@@ -35,7 +35,7 @@ class PIDWidget(QGroupBox):
         self.i_input.setText("0.0")
 
         self.i_label = QLabel("I ")
-        self.i_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.i_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         i_layout.addWidget(self.i_label)
         i_layout.addWidget(self.i_input)
         layout.addLayout(i_layout)
@@ -46,7 +46,7 @@ class PIDWidget(QGroupBox):
         self.d_input.setText("0.0")
 
         self.d_label = QLabel("D")
-        self.d_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.d_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         d_layout.addWidget(self.d_label)
         d_layout.addWidget(self.d_input)
         layout.addLayout(d_layout)

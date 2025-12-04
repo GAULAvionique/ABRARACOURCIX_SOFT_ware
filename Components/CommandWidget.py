@@ -58,20 +58,15 @@ class CommandWidget(QGroupBox):
         layout.addLayout(motor_layout)
 
         # --- Consigne Vitesse ---
-        speed_slider_layout = QHBoxLayout()
-        self.setpoint_spin = QSpinBox()
-        self.setpoint_spin.setRange(0, 360)
-        self.setpoint_spin.setValue(0)
-
-        speed_slider_layout.addWidget(self.setpoint_spin)
-        
-
-        self.set_speed_consign_btn = QPushButton("Set setpoint")
-        self.set_speed_consign_btn.clicked.connect(lambda: self.send_custom_command(f"V{self.setpoint_spin.value()}"))
-
-
-        speed_slider_layout.addWidget(self.set_speed_consign_btn)
-        layout.addLayout(speed_slider_layout)
+        #speed_slider_layout = QHBoxLayout()
+        #self.setpoint_spin = QSpinBox()
+        #self.setpoint_spin.setRange(0, 360)
+        #self.setpoint_spin.setValue(0)
+        #speed_slider_layout.addWidget(self.setpoint_spin)
+        #self.set_speed_consign_btn = QPushButton("Set setpoint")
+        #self.set_speed_consign_btn.clicked.connect(lambda: self.send_custom_command(f"V{self.setpoint_spin.value()}"))
+        #speed_slider_layout.addWidget(self.set_speed_consign_btn)
+        #layout.addLayout(speed_slider_layout)
 
         self.motor_slider.valueChanged.connect(self.motor_spin.setValue)
         self.motor_spin.valueChanged.connect(self.motor_slider.setValue)
