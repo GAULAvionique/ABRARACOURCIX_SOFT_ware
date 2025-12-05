@@ -22,9 +22,11 @@ values_name = ["Speed",
                "ki",
                "kd",
                "time",
-               "filter_type"]
+               "filter_type",
+               "current",
+               "voltage"]
 
-headers = ["S","C","E","N","P","I","D","T","F",]
+headers = ["S","C","E","N","P","I","D","T","F","A","B"]
 
 headers_type_func = [to_float,
                         to_float,
@@ -34,7 +36,9 @@ headers_type_func = [to_float,
                         to_float,
                         to_float,
                         to_int,
-                        to_int]
+                        to_int,
+                        to_float,
+                        to_float]
 
 headers_to_dict_map = {headers[i]:values_name[i] for i in range(len(headers))}
 
