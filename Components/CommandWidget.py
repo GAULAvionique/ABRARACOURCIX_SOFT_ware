@@ -99,7 +99,7 @@ class CommandWidget(QGroupBox):
                     msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), int(value_part))
                     self.ble_manager.send_command(msg)
 
-                case 'P'|'I'|'D'|'E'|'V':  # Paramètres PID | Alpha
+                case 'P'|'I'|'D'|'E'|'V'|'F':  # Paramètres PID | Alpha
                     msg = struct.pack('=cf', bytes(command_type, encoding="UTF-8"), float(value_part))
                     print(msg)
                     self.ble_manager.send_command(msg)
