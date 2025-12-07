@@ -9,6 +9,10 @@ from PyQt6.QtCore import Qt
 MIN_RECORD_TIME = 1
 MAX_RECORD_TIME = 30
 
+recording_msg = "🟢 recording"
+not_recording_msg = "🔴 not recording"
+
+
 class RecordWidget(QGroupBox):
     def __init__(self, ble_manager, parent=None):
         super().__init__(parent, title="Record")
@@ -69,13 +73,17 @@ class RecordWidget(QGroupBox):
         # --- send command input ---
         button_layout = QHBoxLayout()
         self.send_btn = QPushButton("Record")
-
+        self.recording_label = QLabel(not_recording_msg)
+        self.recording_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         button_layout.addWidget(self.send_btn)
+        button_layout.addWidget(self.recording_label)
         layout.addLayout(button_layout)
 
         self.send_btn.clicked.connect(self.start_recording)
+        self.ble_manager.recording_ended.connect(self.recording_stopped)
 
     def start_recording(self):
+        self.recording_label.setText(recording_msg)
         self.ble_manager.file_name = self.file_input.text().strip()
         self.ble_manager.start_record(self.duration_spin.value())
 
@@ -92,3 +100,6 @@ class RecordWidget(QGroupBox):
             selected_files = file_dialog.selectedFiles()
             self.ble_manager.file_path = selected_files[0] + "/"
             print("Selected File:", selected_files[0])
+
+    def recording_stopped(self, value):
+        self.recording_label.setText(not_recording_msg)
