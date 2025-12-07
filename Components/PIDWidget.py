@@ -64,7 +64,6 @@ class PIDWidget(QGroupBox):
 
     def send_Toggle_PID(self):
         msg = struct.pack('=cI', b'G', int(self.toggle_pid_checkbox.isChecked()))
-        print(msg)
         self.ble_manager.send_command(msg)
         
     def send_PID_settings(self):
