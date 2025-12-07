@@ -1,7 +1,7 @@
 # CommandWidget.py
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QSlider, QSpinBox,QGroupBox, 
+    QLabel, QLineEdit, QPushButton, QCheckBox,QGroupBox, 
 )
 
 from PyQt6.QtCore import Qt
@@ -54,14 +54,18 @@ class PIDWidget(QGroupBox):
         # --- send command input ---
         button_layout = QHBoxLayout()
         self.send_btn = QPushButton("Send")
-        self.status_label = QLabel("Status")
+        self.toggle_pid_checkbox = QCheckBox("Toggle Regulation")
 
         button_layout.addWidget(self.send_btn)
-        button_layout.addWidget(self.status_label)
+        button_layout.addWidget(self.toggle_pid_checkbox)
         layout.addLayout(button_layout)
 
         self.send_btn.clicked.connect(self.send_PID_settings)
 
+    def send_Toggle_PID(self):
+        msg = struct.pack('=cI', b'G', int(self.toggle_pid_checkbox.isChecked()))
+        print(msg)
+        self.ble_manager.send_command(msg)
         
     def send_PID_settings(self):
         p = self.p_input.text().strip()

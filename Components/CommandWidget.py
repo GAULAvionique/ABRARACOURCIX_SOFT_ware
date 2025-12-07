@@ -95,7 +95,7 @@ class CommandWidget(QGroupBox):
                     msg = struct.pack('=c', bytes(command_type, encoding="UTF-8"))
                     self.ble_manager.send_command(msg)
 
-                case 'C'|'Z'|'S': # Set motor speed | Choose filter | Window size
+                case 'C'|'Z'|'S'|'G': # Set motor speed | Choose filter | Window size
                     msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), int(value_part))
                     self.ble_manager.send_command(msg)
 
