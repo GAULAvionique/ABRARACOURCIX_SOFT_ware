@@ -55,6 +55,8 @@ class PIDWidget(QGroupBox):
         button_layout = QHBoxLayout()
         self.send_btn = QPushButton("Send")
         self.toggle_pid_checkbox = QCheckBox("Toggle Regulation")
+        self.toggle_pid_checkbox.toggled.connect(self.send_Toggle_PID)
+        self.toggle_pid_checkbox.setChecked(True)
 
         button_layout.addWidget(self.send_btn)
         button_layout.addWidget(self.toggle_pid_checkbox)
