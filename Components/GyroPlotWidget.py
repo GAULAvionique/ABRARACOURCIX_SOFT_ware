@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout
 from collections import deque
 import pyqtgraph as pg
 
+from Components.CurrentStateWidget import FILTER_LENGTH
+
 MAX_GRAPH_POINTS = 500
 MIN_HEIGHT = 50
 MAX_HEIGHT = 400
@@ -16,6 +18,9 @@ class GyroPlotWidget(QWidget):
 
         self.curves_plot1 = {}
         self.curves_plot2 = {}
+
+        self.current_values = deque(maxlen=FILTER_LENGTH)
+        self.battery_values = deque(maxlen=FILTER_LENGTH)
 
         self.ble_manager = ble_manager
         self.select_plot = select_plot
@@ -48,7 +53,16 @@ class GyroPlotWidget(QWidget):
     def process_data(self, data):
         header = list(data.keys())[0]
         data = data[header]
-        self.values_deque_map[header].append(data)
+        if header is 'current':
+            self.current_values.append(data)
+            avg_current = sum(self.current_values)/len(self.current_values)
+            self.values_deque_map[header].append(avg_current)
+        elif header is 'voltage':
+            self.battery_values.append(data)
+            avg_voltage = sum(self.battery_values)/len(self.battery_values)
+            self.values_deque_map[header].append(avg_voltage)
+        else:
+            self.values_deque_map[header].append(data)
         
         # new points ready to be plotted
         if header == 'time':
