@@ -76,6 +76,7 @@ class BLEManager(QObject):
     new_line = pyqtSignal(str)
     new_dict = pyqtSignal(dict)
     state_dict_update = pyqtSignal(dict)
+    recording_ended = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -192,6 +193,7 @@ class BLEManager(QObject):
         self.recording = False
         save_to_csv(self.values, self.file_path + self.file_name)
         self.values = self.init_values_dict()
+        self.recording_ended.emit(1)
 
 
 def detect_bt_ports():

@@ -6,6 +6,10 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 import struct
 
+cmd_simple = ['A', 'B']
+cmd_int = ['C', 'Z', 'S']
+cmd_float = ['P','I','D','E','V','F']
+
 
 class CommandWidget(QGroupBox):
     def __init__(self, ble_manager, parent=None):
@@ -57,17 +61,6 @@ class CommandWidget(QGroupBox):
         motor_layout.addWidget(set_motor_btn)
         layout.addLayout(motor_layout)
 
-        # --- Consigne Vitesse ---
-        #speed_slider_layout = QHBoxLayout()
-        #self.setpoint_spin = QSpinBox()
-        #self.setpoint_spin.setRange(0, 360)
-        #self.setpoint_spin.setValue(0)
-        #speed_slider_layout.addWidget(self.setpoint_spin)
-        #self.set_speed_consign_btn = QPushButton("Set setpoint")
-        #self.set_speed_consign_btn.clicked.connect(lambda: self.send_custom_command(f"V{self.setpoint_spin.value()}"))
-        #speed_slider_layout.addWidget(self.set_speed_consign_btn)
-        #layout.addLayout(speed_slider_layout)
-
         self.motor_slider.valueChanged.connect(self.motor_spin.setValue)
         self.motor_spin.valueChanged.connect(self.motor_slider.setValue)
 
@@ -90,6 +83,22 @@ class CommandWidget(QGroupBox):
                 return
             command_type = cmd[0]
             value_part = cmd[1:]
+
+            if command_type in cmd_simple:
+                msg = struct.pack('=c', bytes(command_type, encoding="UTF-8"))
+                self.ble_manager.send_command(msg)
+
+            elif command_type in cmd_int:
+                msg = struct.pack('=cI', bytes(command_type, encoding="UTF-8"), int(value_part))
+                self.ble_manager.send_command(msg)
+
+            elif command_type in cmd_float:
+                msg = struct.pack('=cf', bytes(command_type, encoding="UTF-8"), float(value_part))
+                print(msg)
+                self.ble_manager.send_command(msg)
+
+                
+"""
             match command_type:
                 case 'A'|'B':  # Arm | Stop
                     msg = struct.pack('=c', bytes(command_type, encoding="UTF-8"))
@@ -103,4 +112,6 @@ class CommandWidget(QGroupBox):
                     msg = struct.pack('=cf', bytes(command_type, encoding="UTF-8"), float(value_part))
                     print(msg)
                     self.ble_manager.send_command(msg)
+"""
+
 
