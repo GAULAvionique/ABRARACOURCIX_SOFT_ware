@@ -8,7 +8,7 @@ import struct
 
 cmd_simple = ['A', 'B']
 cmd_int = ['C', 'Z', 'S']
-cmd_float = ['P','I','D','E','V','F']
+cmd_float = ['P','I','D','E','V','F', 'a', 'b', 'c', 'd', 'e', 'f']
 
 
 class CommandWidget(QGroupBox):
@@ -97,7 +97,7 @@ class CommandWidget(QGroupBox):
                 print(msg)
                 self.ble_manager.send_command(msg)
 
-                
+
 """
             match command_type:
                 case 'A'|'B':  # Arm | Stop
