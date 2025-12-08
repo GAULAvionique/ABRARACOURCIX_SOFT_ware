@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 MIN_RECORD_TIME = 1
-MAX_RECORD_TIME = 30
+MAX_RECORD_TIME = 180
 
 recording_msg = "🟢 recording"
 not_recording_msg = "🔴 not recording"

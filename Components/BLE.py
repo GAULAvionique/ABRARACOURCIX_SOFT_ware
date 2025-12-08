@@ -25,9 +25,10 @@ values_name = ["Speed",
                "filter_type",
                "current",
                "voltage",
-               "Servo"]
+               "Servo",
+               "setpoint"]
 
-headers = ["S","C","E","N","P","I","D","T","F","A","B","L"]
+headers = ["S","C","E","N","P","I","D","T","F","A","B","L", "K"]
 
 headers_type_func = [to_float,
                         to_float,
@@ -38,6 +39,7 @@ headers_type_func = [to_float,
                         to_float,
                         to_int,
                         to_int,
+                        to_float,
                         to_float,
                         to_float,
                         to_float]

@@ -78,7 +78,6 @@ class PIDWidget(QGroupBox):
         d_val = self._validate_values(d)
 
         if p_val and i_val and d_val:
-            self.status_label.setText("Ok")
 
             msg_p = struct.pack('=cf', b'P', float(p))
             msg_i = struct.pack('=cf', b'I', float(i))
