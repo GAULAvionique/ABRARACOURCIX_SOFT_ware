@@ -16,6 +16,19 @@ def to_int(data):
 BAUDRATE = 115200
 
 stop_recording = False
+
+units = ["deg/s",
+         "deg/s",
+         "deg/s",
+         "",    # int err
+         "",    # kp
+         "",    # ki
+         "",    # kd
+         "ms",
+         "A",
+         "V",
+         "%"]
+
 values_name = ["Speed",
                "Commande",
                "Error",
@@ -27,6 +40,7 @@ values_name = ["Speed",
                "current",
                "voltage",
                "Servo"]
+
 
 headers = ["S","K","E","N","P","I","D","T","A","B","L"]
 
@@ -46,6 +60,7 @@ headers_to_dict_map = {headers[i]:values_name[i] for i in range(len(headers))}
 
 headers_to_type_func_map = {headers[i]:headers_type_func[i] for i in range(len(headers))}
 
+values_to_units_map = {values_name[i]:units[i] for i in range(len(values_name))}
 
 
 class BLEWorker(QObject):
@@ -88,8 +103,10 @@ class BLEManager(QObject):
         
         self.values = self.init_values_dict()
         self.last_state_value = self.init_last_state_dict()
+        self.values_to_units_map = values_to_units_map
         self.headers = headers
         self.values_name = values_name
+        self.units = units
 
         self.record_timer = QTimer(self)
         self.record_timer.timeout.connect(self.stop_record)
@@ -153,11 +170,16 @@ class BLEManager(QObject):
         try:
             data = headers_to_type_func_map[header](data)
         except:
-            print(header)
-            print(data)
             print("Could not convert data to float or int")
             return
         # append la nouvelle valeur à la bonne liste dans le dict
+
+        # Ensures that time cannot go backward, preserving causality and not breaking the laws of the universe
+        if headers_to_dict_map[header] == 'time':
+            last_time = self.last_state_value[headers_to_dict_map[header]]
+            if data < last_time:
+                print("Discarded invalid time")
+                return
 
         if self.recording:
             self.values[headers_to_dict_map[header]].append(data)
