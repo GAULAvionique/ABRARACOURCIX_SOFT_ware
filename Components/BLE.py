@@ -2,6 +2,8 @@ import time
 import serial
 import serial.tools.list_ports
 from PyQt6.QtCore import QObject, pyqtSignal, QThread, QTimer
+import struct
+
 
 import pandas as pd
 
@@ -22,13 +24,11 @@ values_name = ["Speed",
                "ki",
                "kd",
                "time",
-               "filter_type",
                "current",
                "voltage",
-               "Servo",
-               "setpoint"]
+               "Servo"]
 
-headers = ["S","C","E","N","P","I","D","T","F","A","B","L", "K"]
+headers = ["S","K","E","N","P","I","D","T","A","B","L"]
 
 headers_type_func = [to_float,
                         to_float,
@@ -38,8 +38,6 @@ headers_type_func = [to_float,
                         to_float,
                         to_float,
                         to_int,
-                        to_int,
-                        to_float,
                         to_float,
                         to_float,
                         to_float]
@@ -64,13 +62,13 @@ class BLEWorker(QObject):
         while self.running:
             if self.serial_conn and self.serial_conn.is_open:
                 
-                line = self.serial_conn.readline().decode('utf-8').strip()
-
+                line = self.serial_conn.readline().decode('ascii')
                 if line:
+                    #print(line)
                     self.new_line.emit(line)
                     
-            else:
-                time.sleep(0.001)
+            #else:
+            #    time.sleep(0.001)
 
     def stop(self):
         self.running = False
@@ -152,10 +150,11 @@ class BLEManager(QObject):
             print("Error while decoding ignoring package")
             return
         
-        #if record
         try:
             data = headers_to_type_func_map[header](data)
         except:
+            print(header)
+            print(data)
             print("Could not convert data to float or int")
             return
         # append la nouvelle valeur à la bonne liste dans le dict
@@ -177,6 +176,7 @@ class BLEManager(QObject):
         except:
             raise("error parsing the data. no ';'")
         if len(split_package) != 2:
+            print(split_package)
             raise("error parsing the data. wrong formating: {package}")
 
         package, new_line = split_package[0], split_package[1]
@@ -227,3 +227,5 @@ def trim_data(data):
         data[key] = data[key][:min_len]
 
     return data
+
+

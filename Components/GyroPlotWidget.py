@@ -4,7 +4,7 @@ import pyqtgraph as pg
 
 from Components.CurrentStateWidget import FILTER_LENGTH
 
-MAX_GRAPH_POINTS = 500
+MAX_GRAPH_POINTS = 100
 MIN_HEIGHT = 50
 MAX_HEIGHT = 400
 COLORS = ["r","g","b","c","m","y","k","w"]
