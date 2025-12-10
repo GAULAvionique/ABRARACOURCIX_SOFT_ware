@@ -8,7 +8,7 @@ import struct
 
 cmd_simple = ['A', 'B']
 cmd_int = ['C', 'Z', 'S', 'f']
-cmd_float = ['P','I','D','E','V','F', 'a', 'b', 'c', 'd', 'e']
+cmd_float = ['P','I','D','E','V','F', 'a', 'b', 'c', 'd', 'e', 'g', 'h', 'i']
 
 
 class CommandWidget(QGroupBox):
