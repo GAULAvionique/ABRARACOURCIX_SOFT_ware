@@ -51,6 +51,9 @@ class GyroPlotWidget(QWidget):
 
     # process newly received data
     def process_data(self, data):
+        if self.ble_manager.flush_flag:
+            self.flush_data()
+            
         header = list(data.keys())[0]
         data = data[header]
         if header == 'current':
@@ -107,3 +110,8 @@ class GyroPlotWidget(QWidget):
     def _update_plot_curves(self, plot, headers, curves_plot):
         for i, header in enumerate(headers):
             curves_plot[header] = plot.plot(pen=pg.mkPen(COLORS[i%len(COLORS)], width=2), name=header)
+
+    def flush_data(self):
+        for header in self.values_deque_map.keys():
+            self.values_deque_map[header] = []
+        self.ble_manager.flush_flag = False

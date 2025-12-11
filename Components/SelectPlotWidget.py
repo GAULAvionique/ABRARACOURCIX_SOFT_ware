@@ -27,23 +27,32 @@ class SelectPlotWidget(QGroupBox):
         self.setLayout(layout)
 
         # --- combo 1 ---
-        plot1_layout = QVBoxLayout()
+        plot1_layout = QHBoxLayout()
+
+        self.flush_button = QPushButton("Reset")
+
         self.plot_combo = QComboBox()
         self.plot_combo.addItem(name_plot1)
         self.plot_combo.addItem(name_plot2)
 
         plot1_layout.addWidget(self.plot_combo)
+        plot1_layout.addWidget(self.flush_button)
 
+
+        plot_options_layout = QVBoxLayout()
         self.checkboxes = []
         for name in self.values_name:
             checkbox = QCheckBox(f'{name}', self)
             self.checkboxes.append(checkbox)
-            plot1_layout.addWidget(checkbox)
+            plot_options_layout.addWidget(checkbox)
             checkbox.stateChanged.connect(self.text_changed1)
 
         layout.addLayout(plot1_layout)
+        layout.addLayout(plot_options_layout)
 
         self.plot_combo.currentTextChanged.connect(self.plot_changed)
+        self.flush_button.clicked.connect(self.reset_plots)
+
 
     def combo_update(self, plot):
         print(plot)
@@ -78,3 +87,6 @@ class SelectPlotWidget(QGroupBox):
 
     def text_changed2(self, header):
         self.plot2_var.emit(header)
+
+    def reset_plots(self):
+        self.ble_manager.reset_state()

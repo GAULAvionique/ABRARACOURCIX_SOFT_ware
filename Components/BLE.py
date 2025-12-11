@@ -107,6 +107,8 @@ class BLEManager(QObject):
         self.headers = headers
         self.values_name = values_name
         self.units = units
+        self.invalid_time_check = 0
+        self.flush_flag = False
 
         self.record_timer = QTimer(self)
         self.record_timer.timeout.connect(self.stop_record)
@@ -172,9 +174,7 @@ class BLEManager(QObject):
         except:
             print("Could not convert data to float or int")
             return
-        # append la nouvelle valeur à la bonne liste dans le dict
 
-        # Ensures that time cannot go backward, preserving causality and not breaking the laws of the universe
         if headers_to_dict_map[header] == 'time':
             last_time = self.last_state_value[headers_to_dict_map[header]]
             if data < last_time:
@@ -220,6 +220,10 @@ class BLEManager(QObject):
         save_to_csv(self.values, self.file_path + self.file_name)
         self.values = self.init_values_dict()
         self.recording_ended.emit(1)
+
+    def reset_state(self):
+            self.last_state_value = self.init_last_state_dict()
+            self.flush_flag = True
 
 
 def detect_bt_ports():
