@@ -9,6 +9,8 @@ from PyQt6.QtCore import Qt, pyqtSignal
 name_plot1 = "Plot 1"
 name_plot2 = "Plot 2"
 
+
+
 class SelectPlotWidget(QGroupBox):
     plot1_var = pyqtSignal(list)
     plot2_var = pyqtSignal(list)

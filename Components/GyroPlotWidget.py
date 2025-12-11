@@ -112,6 +112,5 @@ class GyroPlotWidget(QWidget):
             curves_plot[header] = plot.plot(pen=pg.mkPen(COLORS[i%len(COLORS)], width=2), name=header)
 
     def flush_data(self):
-        for header in self.values_deque_map.keys():
-            self.values_deque_map[header] = []
+        self.values_deque_map = {self.values_name[i]:deque(maxlen=MAX_GRAPH_POINTS) for i in range(len(self.values_name))}
         self.ble_manager.flush_flag = False
